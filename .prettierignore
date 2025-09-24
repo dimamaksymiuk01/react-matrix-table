@@ -1,0 +1,7 @@
+# Ignore artifacts:
+.github
+.next
+.swc
+node_modules
+public
+.DS_Store
