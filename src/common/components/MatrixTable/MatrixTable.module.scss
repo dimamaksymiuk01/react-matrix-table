@@ -1,0 +1,328 @@
+@import '@/common/styles/variables';
+@import '@/common/styles/mixin';
+
+.tableContainer {
+  max-width: 100%;
+  margin-top: 2rem;
+  @include card-shadow();
+  animation: fadeInUp 0.5s ease-out;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.75rem;
+  }
+}
+
+.title {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: $text-color;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: $border-radius;
+  border: 1px solid $border-color;
+  margin-bottom: 1rem;
+  box-shadow: $shadow-hover-small;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $background-light;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    @include gradient-background($secondary-color);
+    border-radius: 4px;
+
+    &:hover {
+      @include gradient-background(darken($secondary-color, 5%), 20%);
+    }
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: $white;
+  @include responsive-font();
+
+  th, td {
+    @include responsive-padding();
+    text-align: center;
+    border-bottom: 1px solid $border-light;
+    border-right: 1px solid $border-light;
+    position: relative;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  thead {
+    @include gradient-background($secondary-color);
+
+    th {
+      color: $white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.75rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  &:hover .cell:hover {
+    &::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      background: linear-gradient(45deg, $secondary-color, $primary-color);
+      opacity: 0.1;
+      pointer-events: none;
+      border-radius: 4px;
+    }
+  }
+}
+
+.columnHeader {
+  min-width: 120px;
+  position: relative;
+  @include decorative-line();
+
+  @media (max-width: 768px) {
+    min-width: 80px;
+  }
+}
+
+.sumHeader {
+  @include gradient-background($primary-color);
+  min-width: 100px;
+  @include decorative-line(60%, 2px, rgba(255, 255, 255, 0.4));
+}
+
+.dataRow {
+  transition: $transition;
+  position: relative;
+  @include hover-transform(1, -1px);
+
+  &:hover {
+    background-color: lighten($background-light, 2%);
+    box-shadow: $shadow-hover-small;
+  }
+
+  &:nth-child(even) {
+    background-color: $background-card;
+
+    &:hover {
+      background-color: lighten($background-card, 1%);
+    }
+  }
+
+  animation: fadeInRow 0.4s ease-out;
+  animation-fill-mode: both;
+
+  @for $i from 1 through 20 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.05}s;
+    }
+  }
+}
+
+.cell {
+  font-weight: 500;
+  color: $text-secondary;
+  position: relative;
+  @include cell-hover-effect(lighten($secondary-color, 45%));
+}
+
+.sumCell {
+  font-weight: 700;
+  color: darken($primary-color, 20%);
+  background: lighten($primary-color, 40%);
+  position: relative;
+  @include cell-hover-effect(lighten($primary-color, 35%), darken($primary-color, 25%), 1.08, $primary-color);
+
+  &::before {
+    content: '∑';
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 0.6rem;
+    opacity: 0.6;
+  }
+}
+
+.percentileRow {
+  @include gradient-background(lighten($accent-color, 35%), 5%);
+  font-weight: 600;
+  position: relative;
+
+  td {
+    border-bottom: none;
+    border-top: 3px solid $accent-color;
+  }
+
+  animation: slideInFromBottom 0.6s ease-out;
+}
+
+.percentileCell {
+  color: $text-color;
+  font-size: 0.875rem;
+  font-weight: 600;
+  @include cell-hover-effect(lighten($accent-color, 25%), darken($text-color, 10%), 1.1, $accent-color);
+
+  &::after {
+    content: '%';
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-left: 2px;
+  }
+}
+
+.percentileLabel {
+  color: darken($accent-color, 20%);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  background: lighten($secondary-color, 45%);
+  border-radius: $border-radius - 2px;
+  position: relative;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: $background-light;
+  border-radius: $card-border-radius + 4px;
+  border: 2px dashed $border-color;
+  margin-top: 2rem;
+  animation: pulse 2s infinite;
+
+  p {
+    color: $text-hint;
+    font-size: 1.2rem;
+    margin: 0;
+    font-weight: 500;
+    text-align: center;
+
+    &::before {
+      content: '📋';
+      display: block;
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+.info {
+  display: flex;
+  gap: 2rem;
+  padding: 1.25rem;
+  background: $background-card;
+  border-radius: $card-border-radius;
+  justify-content: center;
+  flex-wrap: wrap;
+  border: 1px solid $border-light;
+  box-shadow: $shadow-hover-small;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+}
+
+.infoItem {
+  color: $text-secondary;
+  display: flex;
+  gap: 5px;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  background: rgba($white, 0.7);
+  border-radius: $border-radius;
+  transition: $transition;
+  @include hover-transform(1, -2px);
+
+  &:hover {
+    background: rgba($white, 0.9);
+    box-shadow: $shadow-hover-small;
+  }
+
+  strong {
+    color: $text-color;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  @media (max-width: 768px) {
+    margin: 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRow {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}

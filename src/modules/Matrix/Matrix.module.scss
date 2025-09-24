@@ -1,0 +1,11 @@
+@import '@/common/styles/variables';
+@import '@/common/styles/mixin';
+
+.container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: $background-light;
+  min-height: 100vh;
+  @include flex-center;
+  flex-direction: column;
+}
