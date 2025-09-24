@@ -62,7 +62,8 @@
   background: $white;
   @include responsive-font();
 
-  th, td {
+  th,
+  td {
     @include responsive-padding();
     text-align: center;
     border-bottom: 1px solid $border-light;
@@ -162,7 +163,12 @@
   color: darken($primary-color, 20%);
   background: lighten($primary-color, 40%);
   position: relative;
-  @include cell-hover-effect(lighten($primary-color, 35%), darken($primary-color, 25%), 1.08, $primary-color);
+  @include cell-hover-effect(
+    lighten($primary-color, 35%),
+    darken($primary-color, 25%),
+    1.08,
+    $primary-color
+  );
 
   &::before {
     content: '∑';
@@ -191,7 +197,12 @@
   color: $text-color;
   font-size: 0.875rem;
   font-weight: 600;
-  @include cell-hover-effect(lighten($accent-color, 25%), darken($text-color, 10%), 1.1, $accent-color);
+  @include cell-hover-effect(
+    lighten($accent-color, 25%),
+    darken($text-color, 10%),
+    1.1,
+    $accent-color
+  );
 
   &::after {
     content: '%';
@@ -319,7 +330,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

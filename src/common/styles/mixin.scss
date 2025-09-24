@@ -21,7 +21,12 @@
   }
 }
 
-@mixin cell-hover-effect($bg-color, $text-color: $text-color, $scale: 1.05, $shadow-color: $secondary-color) {
+@mixin cell-hover-effect(
+  $bg-color,
+  $text-color: $text-color,
+  $scale: 1.05,
+  $shadow-color: $secondary-color
+) {
   transition: $transition;
   cursor: pointer;
 
@@ -71,7 +76,11 @@
   }
 }
 
-@mixin responsive-padding($desktop: 0.75rem, $tablet: 0.5rem 0.25rem, $mobile: 0.4rem 0.2rem) {
+@mixin responsive-padding(
+  $desktop: 0.75rem,
+  $tablet: 0.5rem 0.25rem,
+  $mobile: 0.4rem 0.2rem
+) {
   padding: $desktop;
 
   @media (max-width: 768px) {
