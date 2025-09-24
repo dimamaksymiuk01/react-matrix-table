@@ -61,6 +61,7 @@
   border-collapse: collapse;
   background: $white;
   @include responsive-font();
+  counter-reset: nearest-counter;
 
   th,
   td {
@@ -126,7 +127,6 @@
 .dataRow {
   transition: $transition;
   position: relative;
-  @include hover-transform(1, -1px);
 
   &:hover {
     background-color: lighten($background-light, 2%);
@@ -140,22 +140,125 @@
       background-color: lighten($background-card, 1%);
     }
   }
-
-  animation: fadeInRow 0.4s ease-out;
-  animation-fill-mode: both;
-
-  @for $i from 1 through 20 {
-    &:nth-child(#{$i}) {
-      animation-delay: #{$i * 0.05}s;
-    }
-  }
 }
 
 .cell {
   font-weight: 500;
   color: $text-secondary;
   position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
   @include cell-hover-effect(lighten($secondary-color, 45%));
+
+  &:hover:not(.cellHovered):not(.cellNearest) {
+    background-color: lighten($secondary-color, 47%) !important;
+    box-shadow: $shadow-hover-small;
+    border: 1px solid lighten($secondary-color, 30%);
+  }
+
+  &:active {
+    transition: transform 0.1s ease;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba($primary-color, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  &:active::after {
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    transition: all 0.1s ease;
+  }
+}
+
+.cellHovered {
+  background: linear-gradient(135deg, $primary-color, lighten($primary-color, 10%)) !important;
+  color: $white !important;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba($primary-color, 0.4);
+  z-index: 15;
+  border: 2px solid darken($primary-color, 10%);
+  border-radius: $border-radius;
+
+  &::before {
+    content: '🎯';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 0.7rem;
+    background: $white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: $shadow-hover-small;
+    animation: pulseTarget 1.5s infinite;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg,
+      transparent 25%,
+      rgba($primary-color, 0.1) 25%,
+      rgba($primary-color, 0.1) 50%,
+      transparent 50%,
+      transparent 75%,
+      rgba($primary-color, 0.1) 75%);
+    background-size: 8px 8px;
+    animation: moveStripes 1s linear infinite;
+    z-index: -1;
+    border-radius: $border-radius;
+  }
+}
+
+.cellNearest {
+  background: linear-gradient(135deg, lighten($accent-color, 35%), lighten($accent-color, 25%)) !important;
+  color: darken($accent-color, 25%) !important;
+  font-weight: 650;
+  border: 2px solid $accent-color;
+  box-shadow: 0 3px 12px rgba($accent-color, 0.3);
+  border-radius: $border-radius;
+  z-index: 10;
+
+  &::before {
+    content: counter(nearest-counter);
+    counter-increment: nearest-counter;
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    background: $accent-color;
+    color: $white;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    box-shadow: $shadow-hover-small;
+    animation: bounceIn 0.3s ease-out;
+  }
 }
 
 .sumCell {
@@ -166,7 +269,6 @@
   @include cell-hover-effect(
     lighten($primary-color, 35%),
     darken($primary-color, 25%),
-    1.08,
     $primary-color
   );
 
@@ -200,7 +302,6 @@
   @include cell-hover-effect(
     lighten($accent-color, 25%),
     darken($text-color, 10%),
-    1.1,
     $accent-color
   );
 
@@ -252,47 +353,147 @@
 
 .info {
   display: flex;
-  gap: 2rem;
-  padding: 1.25rem;
-  background: $background-card;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, $background-card, lighten($background-card, 1%));
   border-radius: $card-border-radius;
   justify-content: center;
   flex-wrap: wrap;
   border: 1px solid $border-light;
   box-shadow: $shadow-hover-small;
+  margin-bottom: 1rem;
 
   @media (max-width: 768px) {
     flex-direction: column;
     gap: 0.75rem;
     text-align: center;
   }
+
+  .infoItem {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.75rem 1rem;
+    background: rgba($white, 0.8);
+    border-radius: $border-radius;
+    border: 1px solid $border-light;
+    transition: all 0.3s ease;
+    position: relative;
+
+    &:hover {
+      background: rgba($white, 0.95);
+      transform: translateY(-2px);
+      box-shadow: $shadow-hover-small;
+    }
+
+    strong {
+      color: $text-color;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.85rem;
+    }
+
+    span {
+      color: $text-hint;
+      font-style: italic;
+      font-size: 0.8rem;
+    }
+
+    // Іконки для різних типів інформації
+    &:nth-child(1)::before {
+      content: '📊';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 0.8rem;
+    }
+
+    &:nth-child(2)::before {
+      content: '∑';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 0.9rem;
+      color: $primary-color;
+      font-weight: bold;
+    }
+
+    &:nth-child(3)::before {
+      content: '🎯';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 768px) {
+      min-width: unset;
+    }
+  }
 }
 
-.infoItem {
-  color: $text-secondary;
-  display: flex;
-  gap: 5px;
-  font-size: 0.9rem;
-  padding: 0.5rem 1rem;
-  background: rgba($white, 0.7);
-  border-radius: $border-radius;
-  transition: $transition;
-  @include hover-transform(1, -2px);
+.instructions {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, lighten($background-card, 2%), $background-card);
+  border-radius: $card-border-radius;
+  border-left: 4px solid $primary-color;
+  box-shadow: $shadow-hover-small;
+  position: relative;
 
-  &:hover {
-    background: rgba($white, 0.9);
+  &::before {
+    content: '💡';
+    position: absolute;
+    top: -8px;
+    left: 16px;
+    background: $primary-color;
+    color: $white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
     box-shadow: $shadow-hover-small;
   }
 
-  strong {
+  h4 {
+    margin: 0 0 1rem 0;
     color: $text-color;
+    font-size: 1rem;
     font-weight: 600;
-    display: block;
-    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
-  @media (max-width: 768px) {
+  ul {
     margin: 0;
+    padding-left: 1.5rem;
+    list-style: none;
+
+    li {
+      margin: 0.75rem 0;
+      color: $text-secondary;
+      font-size: 0.9rem;
+      position: relative;
+      padding-left: 1.5rem;
+
+      &::before {
+        content: '▶';
+        position: absolute;
+        left: 0;
+        color: $primary-color;
+        font-size: 0.7rem;
+      }
+
+      &:hover {
+        color: $text-color;
+        transform: translateX(4px);
+        transition: all 0.2s ease;
+      }
+    }
   }
 }
 
@@ -336,5 +537,44 @@
   }
   50% {
     opacity: 0.8;
+  }
+}
+
+@keyframes pulseTarget {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes moveStripes {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 16px 0;
+  }
+}
+
+@keyframes nearestPulse {
+  0%, 100% {
+    box-shadow: 0 3px 12px rgba($accent-color, 0.3);
+  }
+  50% {
+    box-shadow: 0 5px 20px rgba($accent-color, 0.5);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
   }
 }

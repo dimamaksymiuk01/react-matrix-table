@@ -19,4 +19,10 @@ export type MatrixTableProps = {
   matrixData: MatrixData;
   m: number;
   n: number;
+  x: number;
+  hoveredCellId: number | null;
+  nearestCellIds: number[];
+  onCellClick: (cellId: number) => void;
+  onCellHover: (cellId: number) => void;
+  onCellLeave: () => void;
 };

@@ -1,16 +1,37 @@
-import React from 'react';
-
 import styles from './MatrixTable.module.scss';
 
 import { MatrixTableProps } from '@/common/types';
 
-export const MatrixTable: React.FC<MatrixTableProps> = ({ matrixData, m, n }) => {
+export const MatrixTable = ({
+  matrixData,
+  m,
+  n,
+  x,
+  hoveredCellId,
+  nearestCellIds,
+  onCellClick,
+  onCellHover,
+  onCellLeave,
+}: MatrixTableProps) => {
   const { matrix, rowSums, columnPercentiles } = matrixData;
+
+  const getCellClassName = (cellId: number) => {
+    let className = styles.cell;
+
+    if (cellId === hoveredCellId) {
+      className += ` ${styles.cellHovered}`;
+    } else if (nearestCellIds.includes(cellId)) {
+      className += ` ${styles.cellNearest}`;
+    }
+
+    return className;
+  };
 
   return (
     <div className={styles.tableContainer}>
       <h3 className={styles.title}>
         Згенерована матриця {m} × {n}
+        {x > 0 && ` (виділяти ${x} найближчих клітинок)`}
       </h3>
 
       <div className={styles.tableWrapper}>
@@ -30,7 +51,13 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({ matrixData, m, n }) =>
             {matrix.map((row, rowIndex) => (
               <tr key={`row-${rowIndex}`} className={styles.dataRow}>
                 {row.map((cell) => (
-                  <td key={cell.id} className={styles.cell}>
+                  <td
+                    key={cell.id}
+                    className={getCellClassName(cell.id)}
+                    onClick={() => onCellClick(cell.id)}
+                    onMouseEnter={() => onCellHover(cell.id)}
+                    onMouseLeave={() => onCellLeave()}
+                  >
                     {cell.amount}
                   </td>
                 ))}
@@ -58,6 +85,24 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({ matrixData, m, n }) =>
           <strong>Загальна сума матриці:</strong>{' '}
           {rowSums.reduce((sum, rowSum) => sum + rowSum, 0)}
         </div>
+        {hoveredCellId && (
+          <div className={styles.infoItem}>
+            <strong>Наведена клітинка:</strong> ID {hoveredCellId}
+            {nearestCellIds.length > 0 && (
+              <span> | Виділено {nearestCellIds.length} найближчих клітинок</span>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className={styles.instructions}>
+        <h4>Інструкції:</h4>
+        <ul>
+          <li>Натисніть на клітинку, щоб збільшити її значення на 1</li>
+          <li>
+            Наведіть курсор на клітинку, щоб побачити найближчі за значенням клітинки
+          </li>
+        </ul>
       </div>
     </div>
   );
