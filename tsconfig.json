@@ -1,14 +1,4 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ],
-  "compilerOptions": {
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
@@ -30,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
-  }
+  "include": ["src", "src/types"],
+  "exclude": ["node_modules", "dist"]
 }
