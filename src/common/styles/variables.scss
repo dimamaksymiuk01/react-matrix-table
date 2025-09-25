@@ -12,6 +12,18 @@ $background-light: #f5f5f5;
 $background-card: #f8f9fa;
 $white: #fff;
 
+$heatmap-color: #4a90e2;
+$heatmap-very-low: rgba($heatmap-color, 0.1);
+$heatmap-very-low-alt: rgba($heatmap-color, 0.05);
+$heatmap-low: rgba($heatmap-color, 0.3);
+$heatmap-low-alt: rgba($heatmap-color, 0.2);
+$heatmap-medium: rgba($heatmap-color, 0.5);
+$heatmap-medium-alt: rgba($heatmap-color, 0.4);
+$heatmap-high: rgba($heatmap-color, 0.7);
+$heatmap-high-alt: rgba($heatmap-color, 0.6);
+$heatmap-very-high: rgba($heatmap-color, 0.9);
+$heatmap-very-high-alt: rgba($heatmap-color, 0.8);
+
 $border-radius: 8px;
 $card-border-radius: 12px;
 
@@ -21,3 +33,12 @@ $shadow-card: 0 4px 20px rgba(0, 0, 0, 0.1);
 $shadow-card-hover: 0 6px 25px rgba(0, 0, 0, 0.12);
 $shadow-focus: 0 0 0 3px;
 $shadow-hover-small: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+$breakpoint-tablet: 768px;
+$breakpoint-mobile: 480px;
+
+$icon-chart: '📊';
+$icon-sum: '∑';
+$icon-target: '🎯';
+$icon-arrow: '▶';
+$icon-percent: '%';
