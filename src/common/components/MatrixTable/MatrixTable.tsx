@@ -1,12 +1,14 @@
+import { useRef } from 'react';
+
 import styles from './MatrixTable.module.scss';
 
+import { useVirtualization } from '@/common/hooks';
 import { Cell, MatrixTableProps } from '@/common/types';
 
 export const MatrixTable = ({
   matrixData,
   n,
   x,
-  hoveredCellId,
   nearestCellIds,
   hoveredSumRowIndex,
   onCellClick,
@@ -16,15 +18,42 @@ export const MatrixTable = ({
   onSumCellLeave,
   onRowRemove,
   onRowAdd,
+  tableCellsRef,
 }: MatrixTableProps) => {
   const { matrix, rowSums, columnPercentiles } = matrixData;
+  const hoveredCellId = useRef<number | null>(null);
+
+  const virtualization = useVirtualization({
+    totalRows: matrix.length,
+    totalCols: n,
+    containerHeight: 600,
+    rowHeight: 40,
+    columnWidth: 100,
+    overscan: 5,
+    overscanCols: 4,
+  });
+
+  const {
+    scrollContainerRef,
+    handleScroll,
+    startIndex,
+    endIndex,
+    topPaddingHeight,
+    bottomPaddingHeight,
+    colStart,
+    colEnd,
+    leftPaddingWidth,
+    rightPaddingWidth,
+    columnWidth,
+    containerHeight,
+  } = virtualization;
+
+  const visibleRows = matrix.slice(startIndex, endIndex);
 
   const getCellClassName = (cellId: number, rowIndex: number, cell: Cell) => {
     let className = styles.cell;
 
-    if (cellId === hoveredCellId) {
-      className += ` ${styles.cellHovered}`;
-    } else if (nearestCellIds.includes(cellId)) {
+    if (nearestCellIds.includes(cellId)) {
       className += ` ${styles.cellNearest}`;
     }
 
@@ -95,62 +124,140 @@ export const MatrixTable = ({
         {x > 0 && ` (виділяти ${x} найближчих клітинок)`}
       </h3>
 
-      <div className={styles.tableWrapper}>
+      <div
+        className={styles.tableWrapper}
+        ref={scrollContainerRef}
+        style={{ maxHeight: containerHeight, overflowY: 'auto' }}
+        onScroll={handleScroll}
+      >
         <table className={styles.table}>
           <thead>
             <tr>
               <th className={styles.actionsHeader}>Дії</th>
-              {Array.from({ length: n }, (_, index) => (
-                <th key={`header-${index}`} className={styles.columnHeader}>
-                  Cell values N={index + 1}
+              {colStart > 0 && (
+                <th colSpan={colStart} style={{ padding: 0 }}>
+                  <div style={{ width: leftPaddingWidth }} />
                 </th>
-              ))}
+              )}
+              {Array.from({ length: colEnd - colStart }, (_, index) => {
+                const colIndex = colStart + index;
+                return (
+                  <th
+                    key={`header-${colIndex}`}
+                    className={styles.columnHeader}
+                    style={{ width: columnWidth, minWidth: columnWidth }}
+                  >
+                    Cell values N={colIndex + 1}
+                  </th>
+                );
+              })}
+              {colEnd < n && (
+                <th colSpan={n - colEnd} style={{ padding: 0 }}>
+                  <div style={{ width: rightPaddingWidth }} />
+                </th>
+              )}
               <th className={styles.sumHeader}>Sum values</th>
             </tr>
           </thead>
 
           <tbody>
-            {matrix.map((row, rowIndex) => (
-              <tr key={`row-${rowIndex}`} className={styles.dataRow}>
-                <td className={styles.actionsCell}>
-                  <button
-                    className={styles.removeButton}
-                    onClick={() => handleRowRemove(rowIndex)}
-                    title={`Видалити рядок ${rowIndex + 1}`}
-                    disabled={matrix.length <= 1}
-                  >
-                    Delete
-                  </button>
-                </td>
-
-                {row.map((cell) => (
-                  <td
-                    key={cell.id}
-                    className={getCellClassName(cell.id, rowIndex, cell)}
-                    onClick={() => onCellClick(cell.id)}
-                    onMouseEnter={() => onCellHover(cell.id)}
-                    onMouseLeave={() => onCellLeave()}
-                  >
-                    {getCellContent(rowIndex, cell)}
-                  </td>
-                ))}
-                <td
-                  className={getSumCellClassName(rowIndex)}
-                  onMouseEnter={() => onSumCellHover(rowIndex)}
-                  onMouseLeave={() => onSumCellLeave()}
-                >
-                  {rowSums[rowIndex]}
-                </td>
+            {topPaddingHeight > 0 && (
+              <tr style={{ height: topPaddingHeight }}>
+                <td colSpan={n + 2} />
               </tr>
-            ))}
+            )}
+
+            {visibleRows.map((row, virtualIndex) => {
+              const rowIndex = startIndex + virtualIndex;
+              return (
+                <tr key={`row-${rowIndex}`} className={styles.dataRow}>
+                  <td className={styles.actionsCell}>
+                    <button
+                      className={styles.removeButton}
+                      onClick={() => handleRowRemove(rowIndex)}
+                      title={`Видалити рядок ${rowIndex + 1}`}
+                      disabled={matrix.length <= 1}
+                    >
+                      Delete
+                    </button>
+                  </td>
+
+                  {colStart > 0 && (
+                    <td colSpan={colStart} style={{ padding: 0 }}>
+                      <div style={{ width: leftPaddingWidth }} />
+                    </td>
+                  )}
+                  {row.slice(colStart, colEnd).map((cell) => (
+                    <td
+                      ref={(el) => {
+                        if (el) {
+                          tableCellsRef?.current?.set(cell.id, el);
+                        } else {
+                          tableCellsRef?.current?.delete(cell.id);
+                        }
+                      }}
+                      key={cell.id}
+                      className={getCellClassName(cell.id, rowIndex, cell)}
+                      onClick={() => onCellClick(cell.id)}
+                      onMouseEnter={() => {
+                        hoveredCellId.current = cell.id;
+                        onCellHover(cell);
+                      }}
+                      onMouseLeave={() => {
+                        hoveredCellId.current = null;
+                        onCellLeave();
+                      }}
+                      style={{ width: columnWidth, minWidth: columnWidth }}
+                    >
+                      {getCellContent(rowIndex, cell)}
+                    </td>
+                  ))}
+                  {colEnd < n && (
+                    <td colSpan={n - colEnd} style={{ padding: 0 }}>
+                      <div style={{ width: rightPaddingWidth }} />
+                    </td>
+                  )}
+                  <td
+                    className={getSumCellClassName(rowIndex)}
+                    onMouseEnter={() => onSumCellHover(rowIndex)}
+                    onMouseLeave={() => onSumCellLeave()}
+                  >
+                    {rowSums[rowIndex]}
+                  </td>
+                </tr>
+              );
+            })}
+
+            {bottomPaddingHeight > 0 && (
+              <tr style={{ height: bottomPaddingHeight }}>
+                <td colSpan={n + 2} />
+              </tr>
+            )}
 
             <tr className={styles.percentileRow}>
               <td className={styles.percentileLabel}>60th percentile</td>
-              {columnPercentiles.map((percentile, index) => (
-                <td key={`percentile-${index}`} className={styles.percentileCell}>
-                  {percentile.toFixed(1)}
+              {colStart > 0 && (
+                <td colSpan={colStart} style={{ padding: 0 }}>
+                  <div style={{ width: leftPaddingWidth }} />
                 </td>
-              ))}
+              )}
+              {columnPercentiles.slice(colStart, colEnd).map((percentile, index) => {
+                const colIndex = colStart + index;
+                return (
+                  <td
+                    key={`percentile-${colIndex}`}
+                    className={styles.percentileCell}
+                    style={{ width: columnWidth, minWidth: columnWidth }}
+                  >
+                    {percentile.toFixed(1)}
+                  </td>
+                );
+              })}
+              {colEnd < n && (
+                <td colSpan={n - colEnd} style={{ padding: 0 }}>
+                  <div style={{ width: rightPaddingWidth }} />
+                </td>
+              )}
               <td className={styles.percentileLabel}>60th percentile</td>
             </tr>
           </tbody>
@@ -175,14 +282,17 @@ export const MatrixTable = ({
           <strong>Загальна сума матриці:</strong>{' '}
           {rowSums.reduce((sum, rowSum) => sum + rowSum, 0)}
         </div>
-        {hoveredCellId && (
-          <div className={styles.infoItem}>
-            <strong>Наведена клітинка:</strong> ID {hoveredCellId}
-            {nearestCellIds.length > 0 && (
-              <span> | Виділено {nearestCellIds.length} найближчих клітинок</span>
-            )}
-          </div>
-        )}
+
+        <div className={styles.infoItem}>
+          <strong>Наведена клітинка:</strong> ID
+          {hoveredCellId.current}
+          <span>
+            {nearestCellIds.length
+              ? ` | Виділено ${nearestCellIds.length} найближчих клітинок`
+              : '-'}
+          </span>
+        </div>
+
         {hoveredSumRowIndex !== null && (
           <div className={styles.infoItem}>
             <strong>Відображення відсотків:</strong> Рядок {hoveredSumRowIndex + 1}

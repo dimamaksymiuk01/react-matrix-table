@@ -14,14 +14,15 @@ export const Matrix = () => {
   const {
     matrixData,
     hasData,
-    hoveredCellId,
     nearestCellIds,
     hoveredSumRowIndex,
     incrementCellValue,
     removeRow,
     addRow,
     handleCellHover,
+    handleCellLeave,
     handleSumCellHover,
+    tableCellsRef,
   } = useMatrix(m, n, x);
 
   const handleMatrixSizeChange = (newM: number, newN: number, newX: number) => {
@@ -32,14 +33,6 @@ export const Matrix = () => {
 
   const handleCellClick = (cellId: number) => {
     incrementCellValue(cellId);
-  };
-
-  const handleCellHoverEvent = (cellId: number) => {
-    handleCellHover(cellId);
-  };
-
-  const handleCellLeave = () => {
-    handleCellHover(null);
   };
 
   const handleSumCellHoverEvent = (rowIndex: number) => {
@@ -68,11 +61,11 @@ export const Matrix = () => {
           m={m}
           n={n}
           x={x}
-          hoveredCellId={hoveredCellId}
+          tableCellsRef={tableCellsRef}
           nearestCellIds={nearestCellIds}
           hoveredSumRowIndex={hoveredSumRowIndex}
           onCellClick={handleCellClick}
-          onCellHover={handleCellHoverEvent}
+          onCellHover={handleCellHover}
           onCellLeave={handleCellLeave}
           onSumCellHover={handleSumCellHoverEvent}
           onSumCellLeave={handleSumCellLeave}
