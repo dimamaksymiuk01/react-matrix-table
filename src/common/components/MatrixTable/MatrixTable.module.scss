@@ -127,6 +127,49 @@
   color: $text-secondary;
   position: relative;
   cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+  @include cell-hover-effect(lighten($secondary-color, 45%));
+
+  &:hover:not(.cellNearest) {
+    background: linear-gradient(
+      135deg,
+      $primary-color,
+      lighten($primary-color, 10%)
+    ) !important;
+    color: $white !important;
+    font-weight: 700;
+    box-shadow: 0 6px 20px rgba($primary-color, 0.4);
+    z-index: 15;
+    border: 2px solid darken($primary-color, 10%);
+    border-radius: $border-radius;
+  }
+
+  &:active {
+    transition: transform 0.1s ease;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba($primary-color, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  &:active::after {
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    transition: all 0.1s ease;
+  }
 }
 
 .cellHovered {
@@ -368,6 +411,24 @@
   color: $white;
   font-weight: 700;
   border-radius: $border-radius;
+  box-shadow: 0 4px 12px rgba($heatmap-color, 0.3);
+  transition: $transition;
+  content: $icon-arrow;
+  @include gradient-background($heatmap-very-low, 0%);
+  background: linear-gradient(135deg, $heatmap-very-low, $heatmap-very-low-alt);
+  color: $text-color;
+  transition: $transition;
+  background: linear-gradient(135deg, $heatmap-low, $heatmap-low-alt);
+  color: $text-color;
+  transition: $transition;
+  background: linear-gradient(135deg, $heatmap-medium, $heatmap-medium-alt);
+  color: $white;
+  transition: $transition;
+  background: linear-gradient(135deg, $heatmap-high, $heatmap-high-alt);
+  color: $white;
+  transition: $transition;
+  background: linear-gradient(135deg, $heatmap-very-high, $heatmap-very-high-alt);
+  color: $white;
   box-shadow: 0 4px 12px rgba($heatmap-color, 0.3);
   transition: $transition;
 }

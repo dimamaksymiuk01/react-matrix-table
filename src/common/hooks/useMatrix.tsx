@@ -1,6 +1,8 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 
-import { Cell, CellValue, MatrixData } from '@/common/types';
+import styles from '@/common/components/MatrixTable/MatrixTable.module.scss';
+import { Cell, CellValue, MatrixData, CellWithDistance } from '@/common/types';
+import { MinHeap } from '@/common/utils';
 
 export const useMatrix = (m: number, n: number, x: number) => {
   const [matrixData, setMatrixData] = useState<MatrixData>({
@@ -9,8 +11,8 @@ export const useMatrix = (m: number, n: number, x: number) => {
     columnPercentiles: [],
   });
 
-  const [hoveredCellId, setHoveredCellId] = useState<number | null>(null);
-  const [nearestCellIds, setNearestCellIds] = useState<number[]>([]);
+  const nearestCellIdsRef = useRef<number[]>([]);
+  const tableCellsRef = useRef<Map<number, HTMLTableCellElement>>(new Map());
   const [hoveredSumRowIndex, setHoveredSumRowIndex] = useState<number | null>(null);
 
   const generateRandomAmount = (): CellValue => {
@@ -100,7 +102,7 @@ export const useMatrix = (m: number, n: number, x: number) => {
         return recalculateData(newMatrix);
       });
     },
-    [recalculateData, hoveredSumRowIndex, hoveredCellId],
+    [recalculateData, hoveredSumRowIndex],
   );
 
   const addRow = useCallback(() => {
@@ -126,85 +128,95 @@ export const useMatrix = (m: number, n: number, x: number) => {
   }, [n, recalculateData]);
 
   const findNearestCells = useCallback(
-    (targetCellId: number, targetValue: number) => {
+    (targetCellId: number, targetValue: number): number[] => {
       if (x === 0) return [];
 
-      const allCells: Array<{ id: number; amount: number; distance: number }> = [];
-
-      matrixData.matrix.forEach((row) => {
-        row.forEach((cell) => {
-          if (cell.id !== targetCellId) {
-            allCells.push({
-              id: cell.id,
-              amount: cell.amount,
-              distance: Math.abs(cell.amount - targetValue),
-            });
-          }
-        });
-      });
-
-      allCells.sort((a, b) => {
-        if (a.distance !== b.distance) {
-          return a.distance - b.distance;
+      const maxHeap = new MinHeap<CellWithDistance>((a, b) => {
+        if (b.distance !== a.distance) {
+          return b.distance - a.distance;
         }
-        return a.amount - b.amount;
+        return b.amount - a.amount;
       });
 
-      return allCells.slice(0, x).map((cell) => cell.id);
+      for (const row of matrixData.matrix) {
+        for (const cell of row) {
+          if (cell.id === targetCellId) continue;
+
+          const distance = Math.abs(cell.amount - targetValue);
+          const cellData: CellWithDistance = {
+            id: cell.id,
+            amount: cell.amount,
+            distance,
+          };
+
+          if (maxHeap.size() < x) {
+            maxHeap.push(cellData);
+          } else {
+            const topElement = maxHeap.peek();
+            if (
+              topElement &&
+              (distance < topElement.distance ||
+                (distance === topElement.distance && cell.amount < topElement.amount))
+            ) {
+              maxHeap.pop();
+              maxHeap.push(cellData);
+            }
+          }
+        }
+      }
+
+      const result: Cell[] = [];
+      while (maxHeap.size() > 0) {
+        const element = maxHeap.pop();
+        if (element) result.unshift(element);
+      }
+
+      return result.map((cell) => cell.id);
     },
     [matrixData.matrix, x],
   );
 
   const handleCellHover = useCallback(
-    (cellId: number | null) => {
-      setHoveredCellId(cellId);
-      setHoveredSumRowIndex(null);
+    (cell: Cell) => {
+      const nearest = findNearestCells(cell.id, cell.amount);
+      nearestCellIdsRef.current = nearest;
 
-      if (cellId === null) {
-        setNearestCellIds([]);
-        return;
-      }
-
-      let targetCell: Cell | null = null;
-      for (const row of matrixData.matrix) {
-        const cell = row.find((c) => c.id === cellId);
-        if (cell) {
-          targetCell = cell;
-          break;
-        }
-      }
-
-      if (targetCell) {
-        const nearest = findNearestCells(cellId, targetCell.amount);
-        setNearestCellIds(nearest);
-      }
+      nearest.forEach((id) => {
+        tableCellsRef.current.get(id)?.classList.add(styles.cellNearest);
+      });
     },
-    [matrixData.matrix, findNearestCells],
+    [findNearestCells],
   );
 
   const handleSumCellHover = useCallback((rowIndex: number | null) => {
     setHoveredSumRowIndex(rowIndex);
-    setHoveredCellId(null);
-    setNearestCellIds([]);
+    nearestCellIdsRef.current = [];
   }, []);
+
+  const handleCellLeave = () => {
+    nearestCellIdsRef.current = [];
+    tableCellsRef.current.forEach((cell) => {
+      cell.classList.remove(styles.cellNearest);
+    });
+  };
 
   useEffect(() => {
     setMatrixData(generateMatrix);
-    setHoveredCellId(null);
-    setNearestCellIds([]);
+    nearestCellIdsRef.current = [];
     setHoveredSumRowIndex(null);
   }, [generateMatrix]);
 
   return {
     matrixData,
     hasData: m > 0 && n > 0,
-    hoveredCellId,
-    nearestCellIds,
+    nearestCellIds: nearestCellIdsRef.current,
     hoveredSumRowIndex,
     incrementCellValue,
     removeRow,
     addRow,
     handleCellHover,
+    handleCellLeave,
     handleSumCellHover,
+    tableCellsRef,
   };
 };
