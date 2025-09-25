@@ -2,55 +2,40 @@ import { useState, useEffect } from 'react';
 
 import styles from './InputForm.module.scss';
 
-import { HandleInputChangeParams, InputFormProps } from '@/common/types';
+import { InputFormProps } from '@/common/types';
 
 export const InputForm = ({ onMatrixSizeChange }: InputFormProps) => {
-  const [m, setM] = useState<number>(0);
-  const [n, setN] = useState<number>(0);
-  const [x, setX] = useState<number>(0);
+  const [m, setM] = useState('');
+  const [n, setN] = useState('');
+  const [x, setX] = useState('');
 
-  const calculateXLimits = (mValue: number, nValue: number) => {
-    const totalCells = mValue * nValue;
-    return Math.max(0, totalCells - 1);
-  };
+  const toNumber = (value: string) =>
+    value === '' ? 0 : Math.max(0, parseInt(value, 10) || 0);
 
-  const maxX = calculateXLimits(m, n);
+  const mNum = toNumber(m);
+  const nNum = toNumber(n);
+  const xNum = toNumber(x);
+  const maxX = Math.max(0, mNum * nNum - 1);
 
-  const handleInputChange = ({
-    value,
-    setter,
-    max,
-  }: HandleInputChangeParams & { max?: number }) => {
-    if (value === '') {
-      setter(0);
-      return;
+  const handleChange = (
+    value: string,
+    setter: (v: string) => void,
+    max: number = 100,
+  ) => {
+    if (value === '' || (parseInt(value, 10) >= 0 && parseInt(value, 10) <= max)) {
+      setter(value);
     }
-
-    const numValue = parseInt(value, 10);
-    const upperLimit = max || 100;
-
-    if (numValue >= 0 && numValue <= upperLimit) {
-      setter(numValue);
-    }
-  };
-
-  const handleXChange = (value: string) => {
-    handleInputChange({
-      value,
-      setter: setX,
-      max: maxX,
-    });
   };
 
   useEffect(() => {
-    if (x > maxX) {
-      setX(maxX);
+    if (xNum > maxX && x !== '') {
+      setX(maxX.toString());
     }
-  }, [maxX, x]);
+  }, [maxX, xNum, x]);
 
   useEffect(() => {
-    onMatrixSizeChange(m, n, x);
-  }, [m, n, x, onMatrixSizeChange]);
+    onMatrixSizeChange(mNum, nNum, xNum);
+  }, [mNum, nNum, xNum, onMatrixSizeChange]);
 
   return (
     <div className={styles.card}>
@@ -63,7 +48,8 @@ export const InputForm = ({ onMatrixSizeChange }: InputFormProps) => {
           min='0'
           max='100'
           value={m}
-          onChange={(e) => handleInputChange({ value: e.target.value, setter: setM })}
+          placeholder='0-100'
+          onChange={(e) => handleChange(e.target.value, setM)}
           className={`${styles.input} ${styles.inputM}`}
         />
         <small className={styles.hint}>Значення від 0 до 100</small>
@@ -76,7 +62,8 @@ export const InputForm = ({ onMatrixSizeChange }: InputFormProps) => {
           min='0'
           max='100'
           value={n}
-          onChange={(e) => handleInputChange({ value: e.target.value, setter: setN })}
+          placeholder='0-100'
+          onChange={(e) => handleChange(e.target.value, setN)}
           className={`${styles.input} ${styles.inputN}`}
         />
         <small className={styles.hint}>Значення від 0 до 100</small>
@@ -89,12 +76,13 @@ export const InputForm = ({ onMatrixSizeChange }: InputFormProps) => {
           min='0'
           max={maxX}
           value={x}
-          onChange={(e) => handleXChange(e.target.value)}
+          placeholder={`0-${maxX}`}
+          onChange={(e) => handleChange(e.target.value, setX, maxX)}
           className={`${styles.input} ${styles.inputX}`}
           disabled={maxX === 0}
         />
         <small className={styles.hint}>
-          Значення від 0 до {maxX} (максимум для матриці {m}×{n})
+          Значення від 0 до {maxX} (максимум для матриці {mNum}×{nNum})
         </small>
       </div>
 
@@ -102,19 +90,19 @@ export const InputForm = ({ onMatrixSizeChange }: InputFormProps) => {
         <h3 className={styles.summaryTitle}>Поточні значення:</h3>
         <div className={styles.values}>
           <div className={`${styles.valueBox} ${styles.valueM}`}>
-            <strong>M: {m}</strong>
+            <strong>M: {mNum}</strong>
           </div>
           <div className={`${styles.valueBox} ${styles.valueN}`}>
-            <strong>N: {n}</strong>
+            <strong>N: {nNum}</strong>
           </div>
           <div className={`${styles.valueBox} ${styles.valueX}`}>
-            <strong>X: {x}</strong>
+            <strong>X: {xNum}</strong>
           </div>
         </div>
         <div className={styles.matrixSize}>
           <strong>
-            Створити матрицю: {m} × {n}
-            {x > 0 && `, виділяти ${x} найближчих клітинок`}
+            Створити матрицю: {mNum} × {nNum}
+            {xNum > 0 && `, виділяти ${xNum} найближчих клітинок`}
           </strong>
         </div>
       </div>
