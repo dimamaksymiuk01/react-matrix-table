@@ -1,16 +1,85 @@
-import React from 'react';
-
 import styles from './MatrixTable.module.scss';
 
-import { MatrixTableProps } from '@/common/types';
+import { Cell, MatrixTableProps } from '@/common/types';
 
-export const MatrixTable: React.FC<MatrixTableProps> = ({ matrixData, m, n }) => {
+export const MatrixTable = ({
+  matrixData,
+  m,
+  n,
+  x,
+  hoveredCellId,
+  nearestCellIds,
+  hoveredSumRowIndex,
+  onCellClick,
+  onCellHover,
+  onCellLeave,
+  onSumCellHover,
+  onSumCellLeave,
+}: MatrixTableProps) => {
   const { matrix, rowSums, columnPercentiles } = matrixData;
+
+  const getCellClassName = (cellId: number, rowIndex: number, cell: Cell) => {
+    let className = styles.cell;
+
+    if (cellId === hoveredCellId) {
+      className += ` ${styles.cellHovered}`;
+    } else if (nearestCellIds.includes(cellId)) {
+      className += ` ${styles.cellNearest}`;
+    }
+
+    const percentageClass = getPercentageCellClassName(rowIndex, cell);
+    if (percentageClass) {
+      className += ` ${percentageClass}`;
+    }
+
+    return className;
+  };
+
+  const getPercentageForCell = (rowIndex: number, cellValue: number): number => {
+    const rowSum = rowSums[rowIndex];
+    return rowSum > 0 ? Math.round((cellValue / rowSum) * 100) : 0;
+  };
+
+  const getHeatmapIntensity = (rowIndex: number, cellValue: number): number => {
+    const row = matrix[rowIndex];
+    const maxValueInRow = Math.max(...row.map((cell) => cell.amount));
+    return maxValueInRow > 0 ? (cellValue / maxValueInRow) * 100 : 0;
+  };
+
+  const getCellContent = (rowIndex: number, cell: Cell): string | number => {
+    if (hoveredSumRowIndex === rowIndex) {
+      return `${getPercentageForCell(rowIndex, cell.amount)}%`;
+    }
+    return cell.amount;
+  };
+
+  const getPercentageCellClassName = (rowIndex: number, cell: Cell): string => {
+    if (hoveredSumRowIndex !== rowIndex) {
+      return '';
+    }
+
+    const intensity = getHeatmapIntensity(rowIndex, cell.amount);
+
+    if (intensity >= 80) return styles.heatmapVeryHigh;
+    if (intensity >= 60) return styles.heatmapHigh;
+    if (intensity >= 40) return styles.heatmapMedium;
+    if (intensity >= 20) return styles.heatmapLow;
+    return styles.heatmapVeryLow;
+  };
+
+  const getSumCellClassName = (rowIndex: number) => {
+    let className = styles.sumCell;
+    if (hoveredSumRowIndex === rowIndex) {
+      className += ` ${styles.sumCellHovered}`;
+    }
+    return className;
+  };
 
   return (
     <div className={styles.tableContainer}>
       <h3 className={styles.title}>
         Згенерована матриця {m} × {n}
+        {x > 0 && ` (виділяти ${x} найближчих клітинок)`}
       </h3>
 
       <div className={styles.tableWrapper}>
@@ -30,11 +99,23 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({ matrixData, m, n }) =>
             {matrix.map((row, rowIndex) => (
               <tr key={`row-${rowIndex}`} className={styles.dataRow}>
                 {row.map((cell) => (
-                  <td key={cell.id} className={styles.cell}>
-                    {cell.amount}
+                  <td
+                    key={cell.id}
+                    className={getCellClassName(cell.id, rowIndex, cell)}
+                    onClick={() => onCellClick(cell.id)}
+                    onMouseEnter={() => onCellHover(cell.id)}
+                    onMouseLeave={() => onCellLeave()}
+                  >
+                    {getCellContent(rowIndex, cell)}
                   </td>
                 ))}
-                <td className={styles.sumCell}>{rowSums[rowIndex]}</td>
+                <td
+                  className={getSumCellClassName(rowIndex)}
+                  onMouseEnter={() => onSumCellHover(rowIndex)}
+                  onMouseLeave={() => onSumCellLeave()}
+                >
+                  {rowSums[rowIndex]}
+                </td>
               </tr>
             ))}
 
@@ -58,6 +139,34 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({ matrixData, m, n }) =>
           <strong>Загальна сума матриці:</strong>{' '}
           {rowSums.reduce((sum, rowSum) => sum + rowSum, 0)}
         </div>
+        {hoveredCellId && (
+          <div className={styles.infoItem}>
+            <strong>Наведена клітинка:</strong> ID {hoveredCellId}
+            {nearestCellIds.length > 0 && (
+              <span> | Виділено {nearestCellIds.length} найближчих клітинок</span>
+            )}
+          </div>
+        )}
+        {hoveredSumRowIndex !== null && (
+          <div className={styles.infoItem}>
+            <strong>Відображення відсотків:</strong> Рядок {hoveredSumRowIndex + 1}
+            <span> | Теплова карта активна</span>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.instructions}>
+        <h4>Інструкції:</h4>
+        <ul>
+          <li>Натисніть на клітинку, щоб збільшити її значення на 1</li>
+          <li>
+            Наведіть курсор на клітинку, щоб побачити найближчі за значенням клітинки
+          </li>
+          <li>
+            Наведіть курсор на клітинку з сумою рядка, щоб побачити відсотки та теплову
+            карту
+          </li>
+        </ul>
       </div>
     </div>
   );

@@ -15,16 +15,9 @@
   background: linear-gradient(135deg, $color 0%, darken($color, $darken) 100%);
 }
 
-@mixin hover-transform($scale: 1.05, $translateY: -1px) {
-  &:hover {
-    transform: translateY($translateY) scale($scale);
-  }
-}
-
 @mixin cell-hover-effect(
   $bg-color,
   $text-color: $text-color,
-  $scale: 1.05,
   $shadow-color: $secondary-color
 ) {
   transition: $transition;
@@ -36,10 +29,6 @@
     font-weight: 600;
     border-radius: $border-radius - 2px;
     box-shadow: $shadow-focus rgba($shadow-color, 0.2);
-  }
-
-  &:active {
-    transform: scale(0.95);
   }
 }
 

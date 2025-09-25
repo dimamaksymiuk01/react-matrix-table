@@ -4,5 +4,5 @@ export type HandleInputChangeParams = {
 };
 
 export type InputFormProps = {
-  onMatrixSizeChange: (m: number, n: number) => void;
+  onMatrixSizeChange: (m: number, n: number, x: number) => void;
 };
