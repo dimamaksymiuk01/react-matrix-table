@@ -6,9 +6,6 @@ export type Cell = {
   amount: CellValue;
 };
 
-export type MatrixRow = Cell[];
-export type Matrix = MatrixRow[];
-
 export type MatrixData = {
   matrix: Cell[][];
   rowSums: number[];
@@ -28,4 +25,6 @@ export type MatrixTableProps = {
   onCellLeave: () => void;
   onSumCellHover: (rowIndex: number) => void;
   onSumCellLeave: () => void;
+  onRowRemove?: (rowIndex: number) => void;
+  onRowAdd?: () => void;
 };
