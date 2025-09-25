@@ -92,6 +92,16 @@ export const useMatrix = (m: number, n: number, x: number) => {
     [recalculateData],
   );
 
+  const removeRow = useCallback(
+    (rowIndex: number) => {
+      setMatrixData((prevData) => {
+        const newMatrix = prevData.matrix.filter((_, index) => index !== rowIndex);
+        return recalculateData(newMatrix);
+      });
+    },
+    [recalculateData, hoveredSumRowIndex, hoveredCellId],
+  );
+
   const findNearestCells = useCallback(
     (targetCellId: number, targetValue: number) => {
       if (x === 0) return [];
@@ -169,6 +179,7 @@ export const useMatrix = (m: number, n: number, x: number) => {
     nearestCellIds,
     hoveredSumRowIndex,
     incrementCellValue,
+    removeRow,
     handleCellHover,
     handleSumCellHover,
   };

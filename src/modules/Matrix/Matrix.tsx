@@ -18,6 +18,7 @@ export const Matrix = () => {
     nearestCellIds,
     hoveredSumRowIndex,
     incrementCellValue,
+    removeRow,
     handleCellHover,
     handleSumCellHover,
   } = useMatrix(m, n, x);
@@ -48,6 +49,10 @@ export const Matrix = () => {
     handleSumCellHover(null);
   };
 
+  const handleRowRemove = (rowIndex: number) => {
+    removeRow(rowIndex);
+  };
+
   return (
     <div className={styles.container}>
       <InputForm onMatrixSizeChange={handleMatrixSizeChange} />
@@ -66,6 +71,7 @@ export const Matrix = () => {
           onCellLeave={handleCellLeave}
           onSumCellHover={handleSumCellHoverEvent}
           onSumCellLeave={handleSumCellLeave}
+          onRowRemove={handleRowRemove}
         />
       )}
     </div>

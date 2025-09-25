@@ -28,4 +28,5 @@ export type MatrixTableProps = {
   onCellLeave: () => void;
   onSumCellHover: (rowIndex: number) => void;
   onSumCellLeave: () => void;
+  onRowRemove?: (rowIndex: number) => void;
 };

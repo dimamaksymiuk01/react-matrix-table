@@ -4,7 +4,6 @@ import { Cell, MatrixTableProps } from '@/common/types';
 
 export const MatrixTable = ({
   matrixData,
-  m,
   n,
   x,
   hoveredCellId,
@@ -15,6 +14,7 @@ export const MatrixTable = ({
   onCellLeave,
   onSumCellHover,
   onSumCellLeave,
+  onRowRemove,
 }: MatrixTableProps) => {
   const { matrix, rowSums, columnPercentiles } = matrixData;
 
@@ -75,10 +75,16 @@ export const MatrixTable = ({
     return className;
   };
 
+  const handleRowRemove = (rowIndex: number) => {
+    if (onRowRemove) {
+      onRowRemove(rowIndex);
+    }
+  };
+
   return (
     <div className={styles.tableContainer}>
       <h3 className={styles.title}>
-        Згенерована матриця {m} × {n}
+        Згенерована матриця {matrix.length} × {n}
         {x > 0 && ` (виділяти ${x} найближчих клітинок)`}
       </h3>
 
@@ -86,6 +92,7 @@ export const MatrixTable = ({
         <table className={styles.table}>
           <thead>
             <tr>
+              <th className={styles.actionsHeader}>Дії</th>
               {Array.from({ length: n }, (_, index) => (
                 <th key={`header-${index}`} className={styles.columnHeader}>
                   Cell values N={index + 1}
@@ -98,6 +105,17 @@ export const MatrixTable = ({
           <tbody>
             {matrix.map((row, rowIndex) => (
               <tr key={`row-${rowIndex}`} className={styles.dataRow}>
+                <td className={styles.actionsCell}>
+                  <button
+                    className={styles.removeButton}
+                    onClick={() => handleRowRemove(rowIndex)}
+                    title={`Видалити рядок ${rowIndex + 1}`}
+                    disabled={matrix.length <= 1}
+                  >
+                    Delete
+                  </button>
+                </td>
+
                 {row.map((cell) => (
                   <td
                     key={cell.id}
@@ -120,6 +138,7 @@ export const MatrixTable = ({
             ))}
 
             <tr className={styles.percentileRow}>
+              <td className={styles.percentileLabel}>60th percentile</td>
               {columnPercentiles.map((percentile, index) => (
                 <td key={`percentile-${index}`} className={styles.percentileCell}>
                   {percentile.toFixed(1)}
@@ -133,7 +152,7 @@ export const MatrixTable = ({
 
       <div className={styles.info}>
         <div className={styles.infoItem}>
-          <strong>Загальна кількість комірок:</strong> {m * n}
+          <strong>Загальна кількість комірок:</strong> {matrix.length * n}
         </div>
         <div className={styles.infoItem}>
           <strong>Загальна сума матриці:</strong>{' '}
@@ -166,6 +185,7 @@ export const MatrixTable = ({
             Наведіть курсор на клітинку з сумою рядка, щоб побачити відсотки та теплову
             карту
           </li>
+          <li>Натисніть на кнопку 🗑️ щоб видалити рядок</li>
         </ul>
       </div>
     </div>
