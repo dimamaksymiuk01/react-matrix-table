@@ -15,6 +15,7 @@ export const MatrixTable = ({
   onSumCellHover,
   onSumCellLeave,
   onRowRemove,
+  onRowAdd,
 }: MatrixTableProps) => {
   const { matrix, rowSums, columnPercentiles } = matrixData;
 
@@ -78,6 +79,12 @@ export const MatrixTable = ({
   const handleRowRemove = (rowIndex: number) => {
     if (onRowRemove) {
       onRowRemove(rowIndex);
+    }
+  };
+
+  const handleRowAdd = () => {
+    if (onRowAdd) {
+      onRowAdd();
     }
   };
 
@@ -150,6 +157,16 @@ export const MatrixTable = ({
         </table>
       </div>
 
+      <div className={styles.addRowContainer}>
+        <button
+          className={styles.addRowButton}
+          onClick={handleRowAdd}
+          title='Додати новий рядок'
+        >
+          Додати рядок
+        </button>
+      </div>
+
       <div className={styles.info}>
         <div className={styles.infoItem}>
           <strong>Загальна кількість комірок:</strong> {matrix.length * n}
@@ -185,7 +202,10 @@ export const MatrixTable = ({
             Наведіть курсор на клітинку з сумою рядка, щоб побачити відсотки та теплову
             карту
           </li>
-          <li>Натисніть на кнопку 🗑️ щоб видалити рядок</li>
+          <li>Натисніть на кнопку "Delete" щоб видалити рядок</li>
+          <li>
+            Натисніть на кнопку + "Додати рядок" щоб додати новий рядок в кінець таблиці
+          </li>
         </ul>
       </div>
     </div>

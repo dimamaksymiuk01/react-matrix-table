@@ -96,11 +96,34 @@ export const useMatrix = (m: number, n: number, x: number) => {
     (rowIndex: number) => {
       setMatrixData((prevData) => {
         const newMatrix = prevData.matrix.filter((_, index) => index !== rowIndex);
+
         return recalculateData(newMatrix);
       });
     },
     [recalculateData, hoveredSumRowIndex, hoveredCellId],
   );
+
+  const addRow = useCallback(() => {
+    setMatrixData((prevData) => {
+      let maxId = 0;
+      prevData.matrix.forEach((row) => {
+        row.forEach((cell) => {
+          if (cell.id > maxId) {
+            maxId = cell.id;
+          }
+        });
+      });
+
+      const newRow: Cell[] = Array.from({ length: n }, () => ({
+        id: ++maxId,
+        amount: generateRandomAmount(),
+      }));
+
+      const newMatrix = [...prevData.matrix, newRow];
+
+      return recalculateData(newMatrix);
+    });
+  }, [n, recalculateData]);
 
   const findNearestCells = useCallback(
     (targetCellId: number, targetValue: number) => {
@@ -180,6 +203,7 @@ export const useMatrix = (m: number, n: number, x: number) => {
     hoveredSumRowIndex,
     incrementCellValue,
     removeRow,
+    addRow,
     handleCellHover,
     handleSumCellHover,
   };
