@@ -415,20 +415,4 @@
   transition: $transition;
   content: $icon-arrow;
   @include gradient-background($heatmap-very-low, 0%);
-  background: linear-gradient(135deg, $heatmap-very-low, $heatmap-very-low-alt);
-  color: $text-color;
-  transition: $transition;
-  background: linear-gradient(135deg, $heatmap-low, $heatmap-low-alt);
-  color: $text-color;
-  transition: $transition;
-  background: linear-gradient(135deg, $heatmap-medium, $heatmap-medium-alt);
-  color: $white;
-  transition: $transition;
-  background: linear-gradient(135deg, $heatmap-high, $heatmap-high-alt);
-  color: $white;
-  transition: $transition;
-  background: linear-gradient(135deg, $heatmap-very-high, $heatmap-very-high-alt);
-  color: $white;
-  box-shadow: 0 4px 12px rgba($heatmap-color, 0.3);
-  transition: $transition;
 }
