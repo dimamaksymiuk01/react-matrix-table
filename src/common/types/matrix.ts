@@ -22,7 +22,10 @@ export type MatrixTableProps = {
   x: number;
   hoveredCellId: number | null;
   nearestCellIds: number[];
+  hoveredSumRowIndex: number | null;
   onCellClick: (cellId: number) => void;
   onCellHover: (cellId: number) => void;
   onCellLeave: () => void;
+  onSumCellHover: (rowIndex: number) => void;
+  onSumCellLeave: () => void;
 };

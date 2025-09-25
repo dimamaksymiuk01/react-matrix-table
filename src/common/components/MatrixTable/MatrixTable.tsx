@@ -1,6 +1,6 @@
 import styles from './MatrixTable.module.scss';
 
-import { MatrixTableProps } from '@/common/types';
+import { Cell, MatrixTableProps } from '@/common/types';
 
 export const MatrixTable = ({
   matrixData,
@@ -9,13 +9,16 @@ export const MatrixTable = ({
   x,
   hoveredCellId,
   nearestCellIds,
+  hoveredSumRowIndex,
   onCellClick,
   onCellHover,
   onCellLeave,
+  onSumCellHover,
+  onSumCellLeave,
 }: MatrixTableProps) => {
   const { matrix, rowSums, columnPercentiles } = matrixData;
 
-  const getCellClassName = (cellId: number) => {
+  const getCellClassName = (cellId: number, rowIndex: number, cell: Cell) => {
     let className = styles.cell;
 
     if (cellId === hoveredCellId) {
@@ -24,6 +27,52 @@ export const MatrixTable = ({
       className += ` ${styles.cellNearest}`;
     }
 
+    // Додаємо клас для теплової карти якщо потрібно
+    const percentageClass = getPercentageCellClassName(rowIndex, cell);
+    if (percentageClass) {
+      className += ` ${percentageClass}`;
+    }
+
+    return className;
+  };
+
+  const getPercentageForCell = (rowIndex: number, cellValue: number): number => {
+    const rowSum = rowSums[rowIndex];
+    return rowSum > 0 ? Math.round((cellValue / rowSum) * 100) : 0;
+  };
+
+  const getHeatmapIntensity = (rowIndex: number, cellValue: number): number => {
+    const row = matrix[rowIndex];
+    const maxValueInRow = Math.max(...row.map((cell) => cell.amount));
+    return maxValueInRow > 0 ? (cellValue / maxValueInRow) * 100 : 0;
+  };
+
+  const getCellContent = (rowIndex: number, cell: Cell): string | number => {
+    if (hoveredSumRowIndex === rowIndex) {
+      return `${getPercentageForCell(rowIndex, cell.amount)}%`;
+    }
+    return cell.amount;
+  };
+
+  const getPercentageCellClassName = (rowIndex: number, cell: Cell): string => {
+    if (hoveredSumRowIndex !== rowIndex) {
+      return '';
+    }
+
+    const intensity = getHeatmapIntensity(rowIndex, cell.amount);
+
+    if (intensity >= 80) return styles.heatmapVeryHigh;
+    if (intensity >= 60) return styles.heatmapHigh;
+    if (intensity >= 40) return styles.heatmapMedium;
+    if (intensity >= 20) return styles.heatmapLow;
+    return styles.heatmapVeryLow;
+  };
+
+  const getSumCellClassName = (rowIndex: number) => {
+    let className = styles.sumCell;
+    if (hoveredSumRowIndex === rowIndex) {
+      className += ` ${styles.sumCellHovered}`;
+    }
     return className;
   };
 
@@ -53,15 +102,21 @@ export const MatrixTable = ({
                 {row.map((cell) => (
                   <td
                     key={cell.id}
-                    className={getCellClassName(cell.id)}
+                    className={getCellClassName(cell.id, rowIndex, cell)}
                     onClick={() => onCellClick(cell.id)}
                     onMouseEnter={() => onCellHover(cell.id)}
                     onMouseLeave={() => onCellLeave()}
                   >
-                    {cell.amount}
+                    {getCellContent(rowIndex, cell)}
                   </td>
                 ))}
-                <td className={styles.sumCell}>{rowSums[rowIndex]}</td>
+                <td
+                  className={getSumCellClassName(rowIndex)}
+                  onMouseEnter={() => onSumCellHover(rowIndex)}
+                  onMouseLeave={() => onSumCellLeave()}
+                >
+                  {rowSums[rowIndex]}
+                </td>
               </tr>
             ))}
 
@@ -93,6 +148,12 @@ export const MatrixTable = ({
             )}
           </div>
         )}
+        {hoveredSumRowIndex !== null && (
+          <div className={styles.infoItem}>
+            <strong>Відображення відсотків:</strong> Рядок {hoveredSumRowIndex + 1}
+            <span> | Теплова карта активна</span>
+          </div>
+        )}
       </div>
 
       <div className={styles.instructions}>
@@ -101,6 +162,10 @@ export const MatrixTable = ({
           <li>Натисніть на клітинку, щоб збільшити її значення на 1</li>
           <li>
             Наведіть курсор на клітинку, щоб побачити найближчі за значенням клітинки
+          </li>
+          <li>
+            Наведіть курсор на клітинку з сумою рядка, щоб побачити відсотки та теплову
+            карту
           </li>
         </ul>
       </div>

@@ -11,6 +11,7 @@ export const useMatrix = (m: number, n: number, x: number) => {
 
   const [hoveredCellId, setHoveredCellId] = useState<number | null>(null);
   const [nearestCellIds, setNearestCellIds] = useState<number[]>([]);
+  const [hoveredSumRowIndex, setHoveredSumRowIndex] = useState<number | null>(null);
 
   const generateRandomAmount = (): CellValue => {
     return Math.floor(Math.random() * 900) + 100;
@@ -124,6 +125,7 @@ export const useMatrix = (m: number, n: number, x: number) => {
   const handleCellHover = useCallback(
     (cellId: number | null) => {
       setHoveredCellId(cellId);
+      setHoveredSumRowIndex(null);
 
       if (cellId === null) {
         setNearestCellIds([]);
@@ -147,10 +149,17 @@ export const useMatrix = (m: number, n: number, x: number) => {
     [matrixData.matrix, findNearestCells],
   );
 
+  const handleSumCellHover = useCallback((rowIndex: number | null) => {
+    setHoveredSumRowIndex(rowIndex);
+    setHoveredCellId(null);
+    setNearestCellIds([]);
+  }, []);
+
   useEffect(() => {
     setMatrixData(generateMatrix);
     setHoveredCellId(null);
     setNearestCellIds([]);
+    setHoveredSumRowIndex(null);
   }, [generateMatrix]);
 
   return {
@@ -158,7 +167,9 @@ export const useMatrix = (m: number, n: number, x: number) => {
     hasData: m > 0 && n > 0,
     hoveredCellId,
     nearestCellIds,
+    hoveredSumRowIndex,
     incrementCellValue,
     handleCellHover,
+    handleSumCellHover,
   };
 };
