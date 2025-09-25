@@ -185,7 +185,11 @@
 }
 
 .cellHovered {
-  background: linear-gradient(135deg, $primary-color, lighten($primary-color, 10%)) !important;
+  background: linear-gradient(
+    135deg,
+    $primary-color,
+    lighten($primary-color, 10%)
+  ) !important;
   color: $white !important;
   font-weight: 700;
   box-shadow: 0 6px 20px rgba($primary-color, 0.4);
@@ -217,13 +221,15 @@
     left: -1px;
     right: -1px;
     bottom: -1px;
-    background: linear-gradient(45deg,
+    background: linear-gradient(
+      45deg,
       transparent 25%,
       rgba($primary-color, 0.1) 25%,
       rgba($primary-color, 0.1) 50%,
       transparent 50%,
       transparent 75%,
-      rgba($primary-color, 0.1) 75%);
+      rgba($primary-color, 0.1) 75%
+    );
     background-size: 8px 8px;
     animation: moveStripes 1s linear infinite;
     z-index: -1;
@@ -232,7 +238,11 @@
 }
 
 .cellNearest {
-  background: linear-gradient(135deg, lighten($accent-color, 35%), lighten($accent-color, 25%)) !important;
+  background: linear-gradient(
+    135deg,
+    lighten($accent-color, 35%),
+    lighten($accent-color, 25%)
+  ) !important;
   color: darken($accent-color, 25%) !important;
   font-weight: 650;
   border: 2px solid $accent-color;
@@ -541,7 +551,8 @@
 }
 
 @keyframes pulseTarget {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -559,7 +570,8 @@
 }
 
 @keyframes nearestPulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 3px 12px rgba($accent-color, 0.3);
   }
   50% {
@@ -580,7 +592,11 @@
 }
 
 .sumCellHovered {
-  background: linear-gradient(135deg, $primary-color, darken($primary-color, 10%)) !important;
+  background: linear-gradient(
+    135deg,
+    $primary-color,
+    darken($primary-color, 10%)
+  ) !important;
   color: $white !important;
   font-weight: 700;
   box-shadow: 0 6px 20px rgba($primary-color, 0.4);
@@ -612,13 +628,15 @@
     left: -1px;
     right: -1px;
     bottom: -1px;
-    background: linear-gradient(45deg,
+    background: linear-gradient(
+      45deg,
       transparent 25%,
       rgba($primary-color, 0.1) 25%,
       rgba($primary-color, 0.1) 50%,
       transparent 50%,
       transparent 75%,
-      rgba($primary-color, 0.1) 75%);
+      rgba($primary-color, 0.1) 75%
+    );
     background-size: 8px 8px;
     animation: moveStripes 1s linear infinite;
     z-index: -1;
@@ -628,7 +646,11 @@
 
 // Стилі для теплової карти (різні рівні інтенсивності)
 .heatmapVeryLow {
-  background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(74, 144, 226, 0.05)) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(74, 144, 226, 0.1),
+    rgba(74, 144, 226, 0.05)
+  ) !important;
   color: #333 !important;
   font-weight: 600;
   border: 1px solid rgba(74, 144, 226, 0.2);
@@ -637,7 +659,11 @@
 }
 
 .heatmapLow {
-  background: linear-gradient(135deg, rgba(74, 144, 226, 0.3), rgba(74, 144, 226, 0.2)) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(74, 144, 226, 0.3),
+    rgba(74, 144, 226, 0.2)
+  ) !important;
   color: #333 !important;
   font-weight: 600;
   border: 1px solid rgba(74, 144, 226, 0.4);
@@ -646,7 +672,11 @@
 }
 
 .heatmapMedium {
-  background: linear-gradient(135deg, rgba(74, 144, 226, 0.5), rgba(74, 144, 226, 0.4)) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(74, 144, 226, 0.5),
+    rgba(74, 144, 226, 0.4)
+  ) !important;
   color: #fff !important;
   font-weight: 600;
   border: 1px solid rgba(74, 144, 226, 0.6);
@@ -655,7 +685,7 @@
 }
 
 .heatmapHigh {
-  background: linear-gradient(135deg, rgba(74, 144, 226, 0.7), rgba(74, 144, 226, 0.6)) ;
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.7), rgba(74, 144, 226, 0.6));
   color: #fff !important;
   font-weight: 600;
   border: 1px solid rgba(74, 144, 226, 0.8);
@@ -674,7 +704,8 @@
 }
 
 @keyframes percentageGlow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }

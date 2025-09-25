@@ -27,7 +27,6 @@ export const MatrixTable = ({
       className += ` ${styles.cellNearest}`;
     }
 
-    // Додаємо клас для теплової карти якщо потрібно
     const percentageClass = getPercentageCellClassName(rowIndex, cell);
     if (percentageClass) {
       className += ` ${percentageClass}`;
