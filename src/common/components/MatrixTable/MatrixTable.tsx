@@ -30,7 +30,7 @@ export const MatrixTable = ({
     rowHeight: 40,
     columnWidth: 100,
     overscan: 5,
-    overscanCols: 4,
+    overscanCols: 40,
   });
 
   const {
@@ -256,7 +256,11 @@ export const MatrixTable = ({
         </table>
       </div>
       <div className={styles.addRowContainerIcon}>
-        <button className={styles.addRowButton} onClick={handleRowAdd}>
+        <button
+          disabled={matrixData.rowSums.length >= 100}
+          className={styles.addRowButton}
+          onClick={handleRowAdd}
+        >
           Add row
         </button>
       </div>
@@ -269,7 +273,7 @@ export const MatrixTable = ({
           {rowSums.reduce((sum, rowSum) => sum + rowSum, 0)}
         </div>
         <div className={styles.infoItem}>
-          <strong>Hovered cell:</strong> ID
+          <strong>Hovered cell:</strong> ID:
           {hoveredCellId.current}
           <span>
             {nearestCellIds.length
