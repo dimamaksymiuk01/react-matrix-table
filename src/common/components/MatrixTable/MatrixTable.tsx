@@ -30,7 +30,7 @@ export const MatrixTable = ({
     rowHeight: 40,
     columnWidth: 100,
     overscan: 5,
-    overscanCols: 40,
+    overscanCols: 15,
   });
 
   const {
@@ -273,7 +273,7 @@ export const MatrixTable = ({
           {rowSums.reduce((sum, rowSum) => sum + rowSum, 0)}
         </div>
         <div className={styles.infoItem}>
-          <strong>Hovered cell:</strong> ID:
+          <strong>Selected cell:</strong> ID:
           {hoveredCellId.current}
           <span>
             {nearestCellIds.length
