@@ -120,10 +120,9 @@ export const MatrixTable = ({
   return (
     <div className={styles.tableContainer}>
       <h3 className={styles.title}>
-        Згенерована матриця {matrix.length} × {n}
-        {x > 0 && ` (виділяти ${x} найближчих клітинок)`}
+        Generated matrix {matrix.length} × {n}
+        {x > 0 && ` (highlight ${x} nearest cells)`}
       </h3>
-
       <div
         className={styles.tableWrapper}
         ref={scrollContainerRef}
@@ -133,9 +132,9 @@ export const MatrixTable = ({
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.actionsHeader}>Дії</th>
+              <th className={styles.actionsHeader}>Actions</th>
               {colStart > 0 && (
-                <th colSpan={colStart} style={{ padding: 0 }}>
+                <th colSpan={colStart}>
                   <div style={{ width: leftPaddingWidth }} />
                 </th>
               )}
@@ -159,29 +158,24 @@ export const MatrixTable = ({
               <th className={styles.sumHeader}>Sum values</th>
             </tr>
           </thead>
-
           <tbody>
             {topPaddingHeight > 0 && (
               <tr style={{ height: topPaddingHeight }}>
                 <td colSpan={n + 2} />
               </tr>
             )}
-
             {visibleRows.map((row, virtualIndex) => {
               const rowIndex = startIndex + virtualIndex;
               return (
                 <tr key={`row-${rowIndex}`} className={styles.dataRow}>
                   <td className={styles.actionsCell}>
                     <button
-                      className={styles.removeButton}
+                      className={styles.removeButtonSoft}
                       onClick={() => handleRowRemove(rowIndex)}
-                      title={`Видалити рядок ${rowIndex + 1}`}
+                      title={`Remove row ${rowIndex + 1}`}
                       disabled={matrix.length <= 1}
-                    >
-                      Delete
-                    </button>
+                    ></button>
                   </td>
-
                   {colStart > 0 && (
                     <td colSpan={colStart} style={{ padding: 0 }}>
                       <div style={{ width: leftPaddingWidth }} />
@@ -227,13 +221,11 @@ export const MatrixTable = ({
                 </tr>
               );
             })}
-
             {bottomPaddingHeight > 0 && (
               <tr style={{ height: bottomPaddingHeight }}>
                 <td colSpan={n + 2} />
               </tr>
             )}
-
             <tr className={styles.percentileRow}>
               <td className={styles.percentileLabel}>60th percentile</td>
               {colStart > 0 && (
@@ -263,59 +255,43 @@ export const MatrixTable = ({
           </tbody>
         </table>
       </div>
-
-      <div className={styles.addRowContainer}>
-        <button
-          className={styles.addRowButton}
-          onClick={handleRowAdd}
-          title='Додати новий рядок'
-        >
-          Додати рядок
+      <div className={styles.addRowContainerIcon}>
+        <button className={styles.addRowButton} onClick={handleRowAdd}>
+          Add row
         </button>
       </div>
-
       <div className={styles.info}>
         <div className={styles.infoItem}>
-          <strong>Загальна кількість комірок:</strong> {matrix.length * n}
+          <strong>Total number of cells:</strong> {matrix.length * n}
         </div>
         <div className={styles.infoItem}>
-          <strong>Загальна сума матриці:</strong>{' '}
+          <strong>Total matrix sum:</strong>{' '}
           {rowSums.reduce((sum, rowSum) => sum + rowSum, 0)}
         </div>
-
         <div className={styles.infoItem}>
-          <strong>Наведена клітинка:</strong> ID
+          <strong>Hovered cell:</strong> ID
           {hoveredCellId.current}
           <span>
             {nearestCellIds.length
-              ? ` | Виділено ${nearestCellIds.length} найближчих клітинок`
+              ? ` | Highlighted ${nearestCellIds.length} nearest cells`
               : '-'}
           </span>
         </div>
-
         {hoveredSumRowIndex !== null && (
           <div className={styles.infoItem}>
-            <strong>Відображення відсотків:</strong> Рядок {hoveredSumRowIndex + 1}
-            <span> | Теплова карта активна</span>
+            <strong>Percentage display:</strong> Row {hoveredSumRowIndex + 1}
+            <span> | Heatmap active</span>
           </div>
         )}
       </div>
-
       <div className={styles.instructions}>
-        <h4>Інструкції:</h4>
+        <h4>Instructions:</h4>
         <ul>
-          <li>Натисніть на клітинку, щоб збільшити її значення на 1</li>
-          <li>
-            Наведіть курсор на клітинку, щоб побачити найближчі за значенням клітинки
-          </li>
-          <li>
-            Наведіть курсор на клітинку з сумою рядка, щоб побачити відсотки та теплову
-            карту
-          </li>
-          <li>Натисніть на кнопку "Delete" щоб видалити рядок</li>
-          <li>
-            Натисніть на кнопку + "Додати рядок" щоб додати новий рядок в кінець таблиці
-          </li>
+          <li>Click on a cell to increase its value by 1</li>
+          <li>Hover over a cell to see the nearest cells by value</li>
+          <li>Hover over a row sum cell to see percentages and heatmap</li>
+          <li>Click the "X" button to remove a row</li>
+          <li>Click the "+ Add row" button to add a new row at the end of the table</li>
         </ul>
       </div>
     </div>

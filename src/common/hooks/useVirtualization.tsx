@@ -1,14 +1,6 @@
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useCallback } from 'react';
 
-export interface VirtualizationConfig {
-  totalRows: number;
-  totalCols: number;
-  containerHeight?: number;
-  rowHeight?: number;
-  columnWidth?: number;
-  overscan?: number;
-  overscanCols?: number;
-}
+import { VirtualizationConfig, VirtualizationResult } from '@/common/types';
 
 export const useVirtualization = ({
   totalRows,
@@ -16,19 +8,19 @@ export const useVirtualization = ({
   containerHeight = 800,
   rowHeight = 40,
   columnWidth = 100,
-  overscan = 5,
+  overscan = 4,
   overscanCols = 4,
-}: VirtualizationConfig) => {
+}: VirtualizationConfig): VirtualizationResult => {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [scrollTop, setScrollTop] = useState<number>(0);
   const [scrollLeft, setScrollLeft] = useState<number>(0);
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const target = e.target as HTMLDivElement;
     setScrollTop(target.scrollTop);
     setScrollLeft(target.scrollLeft);
-  };
+  }, []);
 
   const visibleRowCount = useMemo(() => {
     if (rowHeight <= 0) return totalRows;
@@ -52,11 +44,14 @@ export const useVirtualization = ({
     [endIndex, rowHeight, totalRows],
   );
 
+  const containerWidth = useMemo(() => {
+    return scrollContainerRef.current?.clientWidth ?? 0;
+  }, [scrollLeft]);
+
   const visibleColCount = useMemo(() => {
     if (columnWidth <= 0) return totalCols;
-    const containerWidth = scrollContainerRef.current?.clientWidth ?? 0;
     return Math.min(totalCols, Math.ceil(containerWidth / columnWidth) + overscanCols);
-  }, [columnWidth, overscanCols, totalCols]);
+  }, [columnWidth, overscanCols, totalCols, containerWidth]);
 
   const colStart = useMemo(() => {
     if (columnWidth <= 0) return 0;
@@ -74,6 +69,9 @@ export const useVirtualization = ({
     () => Math.max(0, (totalCols - colEnd) * columnWidth),
     [colEnd, columnWidth, totalCols],
   );
+
+  const totalHeight = useMemo(() => totalRows * rowHeight, [totalRows, rowHeight]);
+  const totalWidth = useMemo(() => totalCols * columnWidth, [totalCols, columnWidth]);
 
   return {
     scrollContainerRef,
@@ -93,5 +91,7 @@ export const useVirtualization = ({
     rowHeight,
     columnWidth,
     containerHeight,
+    totalHeight,
+    totalWidth,
   };
 };
