@@ -3,106 +3,103 @@ import { useState, useEffect } from 'react';
 import styles from './InputForm.module.scss';
 
 import { InputFormProps } from '@/common/types';
+import { toNumber } from '@/common/utils';
 
 export const InputForm = ({ onMatrixSizeChange }: InputFormProps) => {
-  const [m, setM] = useState('');
-  const [n, setN] = useState('');
-  const [x, setX] = useState('');
+  const [rowsInput, setRowsInput] = useState('');
+  const [columnsInput, setColumnsInput] = useState('');
+  const [nearestCellsInput, setNearestCellsInput] = useState('');
 
-  const toNumber = (value: string) =>
-    value === '' ? 0 : Math.max(0, parseInt(value, 10) || 0);
+  const rowsCount = toNumber(rowsInput);
+  const columnsCount = toNumber(columnsInput);
+  const nearestCellsCount = toNumber(nearestCellsInput);
+  const maxNearestCells = Math.max(0, rowsCount * columnsCount - 1);
 
-  const mNum = toNumber(m);
-  const nNum = toNumber(n);
-  const xNum = toNumber(x);
-  const maxX = Math.max(0, mNum * nNum - 1);
-
-  const handleChange = (
+  const handleInputChange = (
     value: string,
     setter: (v: string) => void,
-    max: number = 100,
+    maxValue: number = 100,
   ) => {
-    if (value === '' || (parseInt(value, 10) >= 0 && parseInt(value, 10) <= max)) {
+    if (value === '' || (parseInt(value, 10) >= 0 && parseInt(value, 10) <= maxValue)) {
       setter(value);
     }
   };
 
   useEffect(() => {
-    if (xNum > maxX && x !== '') {
-      setX(maxX.toString());
+    if (nearestCellsCount > maxNearestCells && nearestCellsInput !== '') {
+      setNearestCellsInput(maxNearestCells.toString());
     }
-  }, [maxX, xNum, x]);
+  }, [maxNearestCells, nearestCellsCount, nearestCellsInput]);
 
   useEffect(() => {
-    onMatrixSizeChange(mNum, nNum, xNum);
-  }, [mNum, nNum, xNum, onMatrixSizeChange]);
+    onMatrixSizeChange(rowsCount, columnsCount, nearestCellsCount);
+  }, [rowsCount, columnsCount, nearestCellsCount, onMatrixSizeChange]);
 
   return (
     <div className={styles.card}>
-      <h2 className={styles.title}>Налаштування матриці</h2>
-
+      <h2 className={styles.title}>Matrix Settings</h2>
       <div className={styles.inputGroup}>
-        <label className={styles.label}>Кількість рядків (M):</label>
+        <label className={styles.label}>Number of rows (M):</label>
         <input
           type='number'
           min='0'
           max='100'
-          value={m}
+          value={rowsInput}
           placeholder='0-100'
-          onChange={(e) => handleChange(e.target.value, setM)}
+          onChange={(e) => handleInputChange(e.target.value, setRowsInput)}
           className={`${styles.input} ${styles.inputM}`}
         />
-        <small className={styles.hint}>Значення від 0 до 100</small>
+        <small className={styles.hint}>Value from 0 to 100</small>
       </div>
-
       <div className={styles.inputGroup}>
-        <label className={styles.label}>Кількість стовпців (N):</label>
+        <label className={styles.label}>Number of columns (N):</label>
         <input
           type='number'
           min='0'
           max='100'
-          value={n}
+          value={columnsInput}
           placeholder='0-100'
-          onChange={(e) => handleChange(e.target.value, setN)}
+          onChange={(e) => handleInputChange(e.target.value, setColumnsInput)}
           className={`${styles.input} ${styles.inputN}`}
         />
-        <small className={styles.hint}>Значення від 0 до 100</small>
+        <small className={styles.hint}>Value from 0 to 100</small>
       </div>
-
       <div className={styles.inputGroup}>
-        <label className={styles.label}>Кількість найближчих клітинок (X):</label>
+        <label className={styles.label}>Number of nearest cells (X):</label>
         <input
           type='number'
           min='0'
-          max={maxX}
-          value={x}
-          placeholder={`0-${maxX}`}
-          onChange={(e) => handleChange(e.target.value, setX, maxX)}
+          max={maxNearestCells}
+          value={nearestCellsInput}
+          placeholder={`0-${maxNearestCells}`}
+          onChange={(e) =>
+            handleInputChange(e.target.value, setNearestCellsInput, maxNearestCells)
+          }
           className={`${styles.input} ${styles.inputX}`}
-          disabled={maxX === 0}
+          disabled={maxNearestCells === 0}
         />
         <small className={styles.hint}>
-          Значення від 0 до {maxX} (максимум для матриці {mNum}×{nNum})
+          Value from 0 to {maxNearestCells} (maximum for {rowsCount}×{columnsCount}{' '}
+          matrix)
         </small>
       </div>
-
       <div className={styles.summary}>
-        <h3 className={styles.summaryTitle}>Поточні значення:</h3>
+        <h3 className={styles.summaryTitle}>Current values:</h3>
         <div className={styles.values}>
           <div className={`${styles.valueBox} ${styles.valueM}`}>
-            <strong>M: {mNum}</strong>
+            <strong>M: {rowsCount}</strong>
           </div>
           <div className={`${styles.valueBox} ${styles.valueN}`}>
-            <strong>N: {nNum}</strong>
+            <strong>N: {columnsCount}</strong>
           </div>
           <div className={`${styles.valueBox} ${styles.valueX}`}>
-            <strong>X: {xNum}</strong>
+            <strong>X: {nearestCellsCount}</strong>
           </div>
         </div>
         <div className={styles.matrixSize}>
           <strong>
-            Створити матрицю: {mNum} × {nNum}
-            {xNum > 0 && `, виділяти ${xNum} найближчих клітинок`}
+            Generated matrix: {rowsCount} × {columnsCount}
+            {nearestCellsCount > 0 && `, highlight ${nearestCellsCount} nearest cells`}
           </strong>
         </div>
       </div>
