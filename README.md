@@ -1,73 +1,112 @@
-# React + TypeScript + Vite
+# react-matrix-table
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A dynamic interactive matrix table built with React and TypeScript that allows users to generate, manipulate, and visualize matrix data with advanced features like virtualization, nearest cell highlighting, and percentage heatmaps.
 
-Currently, two official plugins are available:
+### 📋 Features
+### Core Functionality
+- Dynamic Matrix Generation: Create matrices of size M×N (0-100 rows/columns)
+- Interactive Cells: Click any cell to increment its value by 1
+- Row Management: Add new rows or remove existing ones
+- Automatic Calculations: Real-time sum calculations and 60th percentile values
+  
+### Advanced Features
+- Nearest Cell Highlighting: Hover over any cell to highlight X nearest cells by value
+- Percentage View & Heatmap: Hover over row sum to see percentages and color-coded heatmap
+- Virtual Scrolling: Efficient rendering for large matrices using custom virtualization
+- Responsive Design: Clean, modern UI that works across different screen sizes
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Technical Highlights
+- Custom Virtualization: Optimized rendering for matrices up to 100×100 (10,000 cells)
+- Min-Heap Algorithm: Efficient nearest neighbor search using custom heap implementation
+- TypeScript: Full type safety throughout the application
+- SCSS Modules: Scoped styling with CSS modules
 
-## React Compiler
+### 🛠️ Tech Stack
+- React 19
+- TypeScript for type safety
+- SCSS with CSS modules for styling
+- Vite for fast development and building
+- Custom algorithms for virtualization and nearest neighbor search
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+  ## 🏗️ Project Structure
+```bash
+  src/
+├── assets/                 # Static assets
+├── common/
+│   ├── components/         
+│   │   ├── InputForm/      # Matrix configuration form
+│   │   └── MatrixTable/    # Main table component
+│   ├── hooks/              # Custom hooks
+│   │   ├── useMatrix.tsx   # Matrix state management
+│   │   └── useVirtualization.tsx # Virtual scrolling logic
+│   ├── types/              # TypeScript type definitions
+│   └── utils/              # Utility functions (MinHeap, helpers)
+├── modules/
+│   └── Matrix/             # Main matrix module
+└── styles/                 # Global styles
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 💡 Usage
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Basic Usage
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Configure Matrix: Set the number of rows (M), columns (N), and nearest cells to highlight (X)
+Interact with Cells: Click any cell to increment its value
+Explore Features:
+
+- Hover over cells to see nearest neighbors highlighted
+- Hover over row sums to view percentages and heatmap
+- Use row controls to add/remove rows
+
+
+## Key Components
+### Matrix Configuration
+
+- M (Rows): 0-100, defines matrix height
+- N (Columns): 0-100, defines matrix width
+- X (Nearest Cells): 0 to (M×N-1), number of nearest cells to highlight
+
+### Interactive Features
+
+- Cell Click: Increments cell value and recalculates totals
+- Cell Hover: Highlights X nearest cells by value using efficient heap-based search
+- Sum Hover: Shows percentage view with color-coded heatmap based on row maximum
+- Row Management: Add/remove rows with automatic recalculation
+
+### 🔧 Technical Implementation
+- Custom Virtualization
+- The application implements custom virtualization to handle large matrices efficiently:
+
+- Only renders visible rows and columns
+- Configurable overscan for smooth scrolling
+- Dynamic padding for proper scroll behavior
+- Supports both vertical and horizontal virtualization
+
+### Efficient Algorithms
+
+- MinHeap: Custom implementation for O(log n) nearest neighbor search
+- Percentile Calculation: Accurate 60th percentile computation
+- Real-time Updates: Optimized state management for instant feedback
+
+- Performance Optimizations
+
+- Memoized calculations with useMemo
+- Callback optimization with useCallback
+- Ref-based DOM manipulation for highlighting
+- Virtual scrolling for large datasets
+
+### 🧪 Development Tools
+The project includes comprehensive development tooling:
+
+- ESLint: Code linting with strict rules
+- Prettier: Code formatting
+- Husky: Pre-commit hooks for code quality
+- GitHub Actions: Automated testing, linting, and deployment
+
+## Virtualization Strategy
+- Custom virtual scrolling implementation:
+
+- Calculates visible viewport based on scroll position
+- Renders only necessary DOM elements
+- Maintains smooth scrolling with padding elements
+- Handles both row and column virtualization
